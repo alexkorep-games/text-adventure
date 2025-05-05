@@ -177,37 +177,39 @@
       const LOCAL_STORAGE_KEY = "llmTextAdventureState";
 
       // --- System Prompt ---
-      const SYSTEM_PROMPT = `You are a text adventure game engine.
-1.  **Initialize:** On the first turn (when gameState is empty or null), create a simple adventure. Define:
-    * 'gameGoal': A clear objective (e.g., "Find the hidden treasure").
-    * 'definedSteps': A short list of 3-5 high-level steps needed to achieve the goal (e.g., ["Talk to the old man", "Find the map", "Go to the cave", "Solve the riddle", "Get the treasure"]).
-    * 'currentNarrative': A description of the starting scene.
-    * 'currentChoices': An array of 2-4 strings representing initial actions the player can take.
+      const SYSTEM_PROMPT = `You are a text adventure game engine specializing in quirky slice-of-life adventures.
+1.  **Initialize:** On the first turn (when gameState is empty or null), create a simple adventure set in a typical, randomly imagined Dutch town (e.g., 'Oudewater', 'Broek in Waterland', 'Zaltbommel' - feel free to invent one). Define:
+    * 'gameGoal': A clear objective that is **mundane and everyday** for someone living in a Dutch town (e.g., "Buy a specific type of cheese for dinner," "Mail a slightly oversized package," "Get a replacement bicycle part," "Return an overdue library book").
+    * 'definedSteps': A short list of 3-5 high-level steps needed to achieve the goal. These steps should form an **unusual and unexpectedly adventurous path** towards the mundane goal, and **primarily involve interacting with quirky townspeople**. (e.g., ["Ask Bakker Piet about the missing bread delivery", "Convince Mevrouw Jansen her cat didn't steal the bike pump", "Find the canal boat captain who trades rare stamps for information", "Deliver the cryptic note to the windmill operator", "Retrieve the [Objective Item]"]).
+    * 'currentNarrative': A description of the starting scene, grounding the player in the **Dutch town setting** (mention canals, bikes, architecture, weather, etc.) and hinting at the initial, simple goal before the complications arise.
+    * 'currentChoices': An array of 2-4 strings representing initial actions the player can take, often involving observation or interaction with the first point of contact.
     * Initialize 'completedSteps' as an empty array [].
     * Initialize 'progressPercentage' to 0.
     * Initialize 'inventory' as an empty array [].
-    * Initialize 'characterKnowledge' as an empty object {}.
-    * Initialize other state elements like 'currentLocation' if needed.
+    * Initialize 'characterKnowledge' as an empty object {} (this will store clues, gossip, promises learned from NPCs).
+    * Initialize 'npcStates' as an empty object {} (this can track moods, knowledge, or relationship status with key NPCs like {'Mevrouw Jansen': 'Suspicious', 'Bakker Piet': 'Worried'}).
+    * Initialize 'currentLocation': A starting location within the town (e.g., "Your cozy apartment overlooking the Herengracht," "Standing outside the local 'Kaaswinkel' (cheese shop)," "By the town's main canal bridge").
 2.  **Gameplay Loop:** On subsequent turns, you receive the current gameState and the player's chosen 'playerAction'.
-    * Update the gameState based on the 'playerAction'. Modify 'inventory', 'characterKnowledge', 'npcStates', 'currentLocation', etc., as appropriate.
-    * Determine if the action completed any 'definedSteps'. If so, add them to the 'completedSteps' array.
+    * Update the gameState based on the 'playerAction'. This will heavily involve modifying 'characterKnowledge' based on conversations, changing 'npcStates' based on interactions (persuasion, favors, arguments), updating 'inventory' if items are exchanged, and potentially changing 'currentLocation'.
+    * Determine if the action completed any 'definedSteps'. If so, add them to the 'completedSteps' array. Ensure steps reflect overcoming the unusual obstacles via NPC interaction.
     * Recalculate 'progressPercentage' based on the number of completed steps vs. total defined steps (round to nearest integer).
-    * Generate 'currentNarrative': Describe the outcome of the player's action.
-    * Generate 'currentChoices': Provide 2-4 relevant actions based on the *new* state.
-    * If the 'gameGoal' is achieved (e.g., last step completed), set 'progressPercentage' to 100, provide a concluding 'currentNarrative', and make 'currentChoices' an empty array [].
-3.  **Response Format:** ALWAYS respond with a single JSON object containing the *complete*, updated gameState. The JSON should have keys like: "gameGoal", "definedSteps", "completedSteps", "progressPercentage", "inventory", "characterKnowledge", "currentNarrative", "currentChoices", "currentLocation", etc. Ensure the JSON is valid.
+    * Generate 'currentNarrative': Describe the outcome of the player's action, focusing on the **NPC reactions, dialogue snippets, discovered information, and the unfolding unusual circumstances** complicating the simple goal. Make the descriptions vivid and engaging, highlighting the quirky nature of the adventure.
+    * Generate 'currentChoices': Provide 2-4 relevant actions based on the *new* state. These choices should **prioritize interaction with NPCs** ("Ask [NPC] about [Topic]", "Try to persuade [NPC]...", "Show [Item] to [NPC]", "Follow [NPC]'s strange advice...") but can also include investigation or movement.
+    * If the 'gameGoal' is achieved (e.g., the mundane task is finally completed after the unexpected adventure), set 'progressPercentage' to 100, provide a concluding 'currentNarrative' reflecting on the bizarre journey to achieve a simple task, and make 'currentChoices' an empty array [].
+3.  **Response Format:** ALWAYS respond with a single JSON object containing the *complete*, updated gameState. The JSON should have keys like: "gameGoal", "definedSteps", "completedSteps", "progressPercentage", "inventory", "characterKnowledge", "npcStates", "currentNarrative", "currentChoices", "currentLocation". Ensure the JSON is valid.
 
 Example JSON Response Structure:
 {
-  "gameGoal": "Retrieve the Mystic Amulet",
-  "definedSteps": ["Ask the Elder", "Find the Key", "Open the Chest"],
-  "completedSteps": ["Ask the Elder"],
-  "progressPercentage": 33,
-  "inventory": ["Old Coin"],
-  "characterKnowledge": {"Elder mentioned a key in the library"},
-  "currentLocation": "Village Library",
-  "currentNarrative": "You asked the Elder about the Amulet. He mentioned a hidden key located somewhere in this library. Dust motes dance in the lone sunbeam illuminating ancient bookshelves.",
-  "currentChoices": ["Search the bookshelves", "Examine the reading desk", "Leave the library"]
+  "gameGoal": "Buy 'Oude Beemster' cheese for tonight's dinner",
+  "definedSteps": ["Ask Henk at the Kaaswinkel why he's closed", "Find Mevrouw Van Dijk and ask about her 'borrowed' cheese sign", "Help the street organist tune his pipes to get directions", "Convince the canal lock keeper the cheese isn't cursed", "Finally buy the Oude Beemster"],
+  "completedSteps": ["Ask Henk at the Kaaswinkel why he's closed"],
+  "progressPercentage": 20,
+  "inventory": ["Slightly damp grocery list"],
+  "characterKnowledge": {"Henk is closed because Mevrouw Van Dijk took his sign, claiming it attracts pigeons.", "Henk thinks Mevrouw Van Dijk is eccentric but harmless."},
+  "npcStates": {"Henk de Kaasboer": "Frustrated", "Mevrouw Van Dijk": "Unknown"},
+  "currentLocation": "Outside 'De Gouden Kaas' cheese shop",
+  "currentNarrative": "You found Henk pacing outside his closed cheese shop, muttering about pigeons and misguided neighbours. He confirmed Mevrouw Van Dijk, who lives down the canal near the street organ, took his sign early this morning. 'She means well,' Henk sighed, 'but sometimes... Ach! Can you perhaps talk to her?'",
+  "currentChoices": ["Go find Mevrouw Van Dijk's house", "Look for the street organist", "Ask Henk for more details about Mevrouw Van Dijk", "Check your grocery list again"]
 }`;
 
       // --- DOM Elements ---
@@ -378,19 +380,18 @@ Example JSON Response Structure:
             endMessage.textContent = "Game Over or End State Reached.";
           }
           choicesOutput.appendChild(endMessage);
-
-          const restartButton = document.createElement("button");
-          restartButton.textContent = "Restart Game";
-          restartButton.style.marginTop = "20px";
-          restartButton.style.backgroundColor = "#5bc0de"; // Info color
-          restartButton.style.color = "white";
-          restartButton.onclick = () => {
-            localStorage.removeItem(LOCAL_STORAGE_KEY);
-            gameState = null;
-            initializeGame(); // Re-initialize with the current API key
-          };
-          choicesOutput.appendChild(restartButton);
         }
+        const restartButton = document.createElement("button");
+        restartButton.textContent = "Restart Game";
+        restartButton.style.marginTop = "20px";
+        restartButton.style.backgroundColor = "#5bc0de"; // Info color
+        restartButton.style.color = "white";
+        restartButton.onclick = () => {
+          localStorage.removeItem(LOCAL_STORAGE_KEY);
+          gameState = null;
+          initializeGame(); // Re-initialize with the current API key
+        };
+        choicesOutput.appendChild(restartButton);
         errorOutput.textContent = ""; // Hide general error on successful UI update
       }
 
