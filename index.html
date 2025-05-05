@@ -133,6 +133,30 @@
         border-radius: 4px;
         margin-top: 10px;
       }
+      /* Styles for the JSON output section */
+      #game-state-details {
+        margin-top: 30px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+      }
+      #game-state-details summary {
+        font-weight: bold;
+        padding: 10px;
+        cursor: pointer;
+        outline: none; /* Remove default focus outline */
+      }
+      #game-state-details pre {
+        background-color: #e9ecef;
+        padding: 15px;
+        margin: 0; /* Remove default margin */
+        white-space: pre-wrap; /* Wrap long lines */
+        word-wrap: break-word; /* Break long words */
+        font-size: 0.9em;
+        max-height: 300px; /* Limit height and add scroll */
+        overflow-y: auto;
+        border-top: 1px solid #dee2e6; /* Separator line */
+      }
     </style>
   </head>
   <body>
@@ -168,12 +192,19 @@
       <!-- General game errors -->
     </div>
 
+    <!-- Expandable Section for Game State JSON -->
+    <details id="game-state-details">
+      <summary>Current Game State (JSON)</summary>
+      <pre id="game-state-json-output">Game state not available yet.</pre>
+    </details>
+
     <script>
       // --- Configuration ---
       // API Key is now managed via UI and localStorage
       const OPENAI_API_KEY_STORAGE_KEY = "llmTextAdventureApiKey";
       const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
-      const LLM_MODEL = "gpt-4.1-nano";
+      const INITIAL_LLM_MODEL = "gpt-4o-mini"; // Model for initial game generation
+      const LLM_MODEL = "gpt-4.1-nano"; // Standard model for gameplay
       const LOCAL_STORAGE_KEY = "llmTextAdventureState";
 
       // --- System Prompt ---
@@ -227,6 +258,10 @@ Example JSON Response Structure:
       const loadingIndicator = document.getElementById("loading-indicator");
       const errorOutput = document.getElementById("error-output"); // For game errors
 
+      const gameStateJsonOutput = document.getElementById(
+        "game-state-json-output"
+      ); // Added for JSON display
+
       // --- Game State & API Key ---
       let gameState = null;
       let currentApiKey = null; // Holds the loaded API key
@@ -270,6 +305,7 @@ Example JSON Response Structure:
         apiKeyStatus.textContent = "API Key cleared. Please enter a new key.";
         apiKeyStatus.className = ""; // Reset status style
         errorOutput.textContent = ""; // Clear game errors
+        updateGameStateJsonDisplay(); // Clear JSON display
       }
 
       /**
@@ -279,6 +315,7 @@ Example JSON Response Structure:
         gameContainer.style.display = "none";
         apiKeySetupDiv.style.display = "block";
         apiKeyStatus.textContent = ""; // Clear status on show
+        document.getElementById("game-state-details").style.display = "none"; // Hide details when setting up key
       }
 
       /**
@@ -287,6 +324,7 @@ Example JSON Response Structure:
       function showGameUI() {
         apiKeySetupDiv.style.display = "none";
         gameContainer.style.display = "block";
+        document.getElementById("game-state-details").style.display = "block"; // Show details with game
         updateApiKeyIndicator(); // Ensure indicator is correct
       }
 
@@ -339,6 +377,27 @@ Example JSON Response Structure:
       }
 
       /**
+       * Updates the JSON display section.
+       */
+      function updateGameStateJsonDisplay() {
+        if (gameState) {
+          try {
+            gameStateJsonOutput.textContent = JSON.stringify(
+              gameState,
+              null,
+              2
+            ); // Pretty print JSON
+          } catch (e) {
+            console.error("Error stringifying game state for display:", e);
+            gameStateJsonOutput.textContent = "Error displaying game state.";
+          }
+        } else {
+          gameStateJsonOutput.textContent =
+            "Game state is currently null or empty.";
+        }
+      }
+
+      /**
        * Updates the UI elements based on the current gameState.
        */
       function updateUI() {
@@ -350,6 +409,7 @@ Example JSON Response Structure:
             progressDisplay.textContent = "Progress: ?";
           }
           choicesOutput.innerHTML = "";
+          updateGameStateJsonDisplay(); // Update JSON display even if state is null
           return;
         }
 
@@ -389,10 +449,13 @@ Example JSON Response Structure:
         restartButton.onclick = () => {
           localStorage.removeItem(LOCAL_STORAGE_KEY);
           gameState = null;
+          updateGameStateJsonDisplay(); // Clear JSON display on restart before init
           initializeGame(); // Re-initialize with the current API key
         };
         choicesOutput.appendChild(restartButton);
         errorOutput.textContent = ""; // Hide general error on successful UI update
+
+        updateGameStateJsonDisplay(); // Update the JSON display section
       }
 
       /**
@@ -416,9 +479,11 @@ Example JSON Response Structure:
       /**
        * Calls the OpenAI API.
        * @param {Array<object>} messages - The array of messages for the chat completion.
+       * @param {string} modelToUse - The specific model identifier to use for this call.
        * @returns {Promise<object | null>} The parsed JSON response from the LLM or null on error.
        */
-      async function callOpenAI(messages) {
+      async function callOpenAI(messages, modelToUse) {
+        // Added modelToUse parameter
         loadingIndicator.style.display = "block";
         errorOutput.textContent = ""; // Clear previous errors
         choicesOutput.innerHTML = ""; // Clear choices while loading
@@ -432,6 +497,8 @@ Example JSON Response Structure:
           return null;
         }
 
+        console.log(`Calling OpenAI API with model: ${modelToUse}`); // Log which model is being used
+
         try {
           const response = await fetch(OPENAI_API_URL, {
             method: "POST",
@@ -440,7 +507,7 @@ Example JSON Response Structure:
               Authorization: `Bearer ${currentApiKey}`, // Use the loaded key
             },
             body: JSON.stringify({
-              model: LLM_MODEL,
+              model: modelToUse, // Use the passed model identifier
               messages: messages,
               response_format: { type: "json_object" },
             }),
@@ -542,7 +609,8 @@ Example JSON Response Structure:
           },
         ];
 
-        const newGameStateData = await callOpenAI(messages);
+        // Use the standard LLM_MODEL for subsequent turns
+        const newGameStateData = await callOpenAI(messages, LLM_MODEL);
 
         if (newGameStateData) {
           gameState = newGameStateData;
@@ -552,15 +620,22 @@ Example JSON Response Structure:
           // Error handled by callOpenAI, keep old UI state but ensure buttons reflect error state
           updateUI(); // Redraw UI, error message should persist from callOpenAI
           // Make sure error buttons (like clear key) added by callOpenAI are visible
-          // This might need adjustment based on how updateUI clears choicesOutput
-          // Let's re-add the error button here if needed and errorOutput has content
-          if (errorOutput.textContent && choicesOutput.innerHTML === "") {
+          // If choicesOutput was cleared by callOpenAI error handling, re-add error buttons.
+          if (errorOutput.textContent && choicesOutput.children.length === 0) {
+            // Check if choicesOutput is empty after error
             const clearKeyOnErrorButton = document.createElement("button");
             clearKeyOnErrorButton.textContent = "Clear API Key & Restart Setup";
             clearKeyOnErrorButton.onclick = clearApiKey;
             clearKeyOnErrorButton.style.backgroundColor = "#d9534f";
             clearKeyOnErrorButton.style.color = "white";
             choicesOutput.appendChild(clearKeyOnErrorButton);
+
+            const retryButton = document.createElement("button"); // Optional: Add retry button
+            retryButton.textContent = "Retry Last Action";
+            retryButton.onclick = () => processPlayerAction(playerAction); // Resubmit the same action
+            retryButton.style.backgroundColor = "#f0ad4e"; // Warning color
+            retryButton.style.color = "white";
+            choicesOutput.appendChild(retryButton);
           }
         }
       }
@@ -590,6 +665,7 @@ Example JSON Response Structure:
           progressDisplay.textContent = "Progress: 0%";
           choicesOutput.innerHTML = "";
           loadingIndicator.style.display = "block"; // Show loading while initializing
+          updateGameStateJsonDisplay(); // Show "null" state in JSON view
 
           const messages = [
             { role: "system", content: SYSTEM_PROMPT },
@@ -600,7 +676,13 @@ Example JSON Response Structure:
             },
           ];
 
-          const initialGameStateData = await callOpenAI(messages);
+          // Use the INITIAL_LLM_MODEL for the first call
+          const initialGameStateData = await callOpenAI(
+            messages,
+            INITIAL_LLM_MODEL
+          );
+
+          loadingIndicator.style.display = "none"; // Hide loading after API call
 
           if (initialGameStateData) {
             gameState = initialGameStateData;
@@ -617,7 +699,8 @@ Example JSON Response Structure:
               errorOutput.textContent =
                 "Error: The AI failed to set up the game correctly. The response might be invalid. Please try restarting.";
               errorOutput.className = "error api-error"; // Use API error style
-              gameState = null;
+              gameState = null; // Reset gameState on critical init failure
+              updateGameStateJsonDisplay(); // Update JSON display to reflect null state
               // Clear choices and show restart options
               choicesOutput.innerHTML = "";
               const restartButton = document.createElement("button");
@@ -639,9 +722,30 @@ Example JSON Response Structure:
           } else {
             // Error occurred during initialization, message handled by callOpenAI
             storyOutput.textContent = "Failed to initialize game.";
-            // Let callOpenAI's error handling manage the UI/buttons
+            progressDisplay.textContent = "Progress: ?";
+            updateGameStateJsonDisplay(); // Update JSON display even on error
+            // Ensure error buttons provided by callOpenAI are displayed
+            // Check if choicesOutput is empty and error is present
+            if (
+              errorOutput.textContent &&
+              choicesOutput.children.length === 0
+            ) {
+              const clearKeyOnErrorButton = document.createElement("button");
+              clearKeyOnErrorButton.textContent =
+                "Clear API Key & Restart Setup";
+              clearKeyOnErrorButton.onclick = clearApiKey;
+              clearKeyOnErrorButton.style.backgroundColor = "#d9534f";
+              clearKeyOnErrorButton.style.color = "white";
+              choicesOutput.appendChild(clearKeyOnErrorButton);
+
+              const retryInitButton = document.createElement("button");
+              retryInitButton.textContent = "Retry Initialization";
+              retryInitButton.onclick = initializeGame; // Retry the init process
+              retryInitButton.style.backgroundColor = "#f0ad4e"; // Warning color
+              retryInitButton.style.color = "white";
+              choicesOutput.appendChild(retryInitButton);
+            }
           }
-          loadingIndicator.style.display = "none";
         }
       }
 
@@ -675,6 +779,7 @@ Example JSON Response Structure:
         } else {
           console.log("No API Key found. Showing setup.");
           showApiKeySetupUI(); // No key, show setup first
+          updateGameStateJsonDisplay(); // Show initial empty state in JSON view
         }
       });
     </script>
