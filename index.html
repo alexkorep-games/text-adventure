@@ -21,7 +21,6 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         margin-bottom: 20px; /* Add margin between sections */
       }
-      /* Initially hide the game container */
       #game-container {
         display: none;
       }
@@ -32,8 +31,7 @@
       }
       #api-key-setup input[type="password"],
       #api-key-setup input[type="text"] {
-        /* Allow text for visibility toggle maybe later */
-        width: calc(100% - 22px); /* Adjust for padding */
+        width: calc(100% - 22px);
         padding: 10px;
         margin-bottom: 15px;
         border: 1px solid #ccc;
@@ -55,7 +53,7 @@
       }
       #clear-api-key-button {
         background-color: #d9534f;
-        margin-left: 10px; /* Space it from other elements if needed */
+        margin-left: 10px;
       }
       #clear-api-key-button:hover {
         background-color: #c9302c;
@@ -72,17 +70,16 @@
         padding: 8px;
         border-radius: 4px;
         margin-bottom: 15px;
-        display: flex; /* Use flexbox for layout */
-        justify-content: space-between; /* Space out text and button */
-        align-items: center; /* Vertically align items */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
       #api-key-display span {
-        margin-right: 10px; /* Space between text and button */
+        margin-right: 10px;
       }
-
       #story-output {
         margin-bottom: 20px;
-        white-space: pre-wrap; /* Preserve formatting from LLM */
+        white-space: pre-wrap;
       }
       #progress-display {
         font-weight: bold;
@@ -92,7 +89,8 @@
         background-color: #e0e0e0;
         border-radius: 4px;
       }
-      #choices-output button {
+      #choices-output button.choice-button {
+        /* Target only choice buttons */
         display: block;
         width: 100%;
         padding: 10px 15px;
@@ -104,11 +102,11 @@
         text-align: left;
         font-size: 1em;
       }
-      #choices-output button:hover {
+      #choices-output button.choice-button:hover {
         background-color: #eee;
       }
       #loading-indicator {
-        display: none; /* Hidden by default */
+        display: none;
         text-align: center;
         margin-top: 20px;
         font-style: italic;
@@ -125,15 +123,13 @@
         margin-top: 15px;
       }
       .api-error {
-        /* Specific style for API key errors */
-        color: #a94442; /* Dark red */
-        background-color: #f2dede; /* Light red background */
-        border: 1px solid #ebccd1; /* Reddish border */
+        color: #a94442;
+        background-color: #f2dede;
+        border: 1px solid #ebccd1;
         padding: 10px;
         border-radius: 4px;
         margin-top: 10px;
       }
-      /* Styles for the JSON output section */
       #game-state-details {
         margin-top: 30px;
         background-color: #f8f9fa;
@@ -144,23 +140,90 @@
         font-weight: bold;
         padding: 10px;
         cursor: pointer;
-        outline: none; /* Remove default focus outline */
+        outline: none;
       }
       #game-state-details pre {
         background-color: #e9ecef;
         padding: 15px;
-        margin: 0; /* Remove default margin */
-        white-space: pre-wrap; /* Wrap long lines */
-        word-wrap: break-word; /* Break long words */
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
         font-size: 0.9em;
-        max-height: 300px; /* Limit height and add scroll */
+        max-height: 300px;
         overflow-y: auto;
-        border-top: 1px solid #dee2e6; /* Separator line */
+        border-top: 1px solid #dee2e6;
+      }
+
+      /* --- New Styles for Custom Input --- */
+      #custom-action-area {
+        margin-top: 20px; /* Space above the input area */
+        display: flex; /* Align input and button */
+        gap: 10px; /* Space between input and button */
+      }
+      #custom-action-input {
+        flex-grow: 1; /* Take remaining space */
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1em;
+      }
+      #submit-custom-action-button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        background-color: #337ab7; /* Primary color */
+        color: white;
+        cursor: pointer;
+        font-size: 1em;
+        white-space: nowrap; /* Prevent button text wrapping */
+      }
+      #submit-custom-action-button:hover {
+        background-color: #286090;
+      }
+      /* Style for the restart button */
+      #restart-button {
+        display: block; /* Make it block */
+        width: 100%; /* Full width */
+        margin-top: 20px; /* Space above */
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        background-color: #5bc0de; /* Info color */
+        color: white;
+        cursor: pointer;
+        font-size: 1em;
+      }
+      #restart-button:hover {
+        background-color: #31b0d5;
+      }
+      /* Adjust error buttons if needed */
+      #choices-output button.error-button {
+        display: block;
+        width: 100%;
+        margin-top: 10px;
+        padding: 10px 15px;
+        color: white;
+        font-size: 1em;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      #choices-output button.error-button.clear-key {
+        background-color: #d9534f; /* Danger */
+      }
+      #choices-output button.error-button.clear-key:hover {
+        background-color: #c9302c;
+      }
+      #choices-output button.error-button.retry {
+        background-color: #f0ad4e; /* Warning */
+      }
+      #choices-output button.error-button.retry:hover {
+        background-color: #ec971f;
       }
     </style>
   </head>
   <body>
-    <!-- Section for API Key Input -->
+    <!-- API Key Setup (no changes needed here) -->
     <div id="api-key-setup">
       <h2>Setup OpenAI API Key</h2>
       <p>
@@ -171,43 +234,39 @@
       <input type="password" id="api-key-input" placeholder="sk-..." />
       <button id="save-api-key-button">Save Key & Start Game</button>
       <div id="api-key-status" class="error"></div>
-      <!-- For status/error messages -->
     </div>
 
-    <!-- Main Game Container (initially hidden) -->
+    <!-- Main Game Container (no changes needed here) -->
     <div id="game-container">
       <h1>Text Adventure</h1>
-
-      <!-- Display API Key Status and Clear Button -->
       <div id="api-key-display">
         <span id="api-key-indicator">API Key Loaded</span>
         <button id="clear-api-key-button">Clear API Key & Restart</button>
       </div>
-
       <div id="progress-display">Progress: 0%</div>
       <div id="story-output">Loading game...</div>
-      <div id="choices-output"></div>
+      <div id="choices-output">
+        <!-- Buttons, custom input, and restart will be rendered here by JS -->
+      </div>
       <div id="loading-indicator">Thinking...</div>
       <div id="error-output" class="error"></div>
-      <!-- General game errors -->
     </div>
 
-    <!-- Expandable Section for Game State JSON -->
+    <!-- Game State Details (no changes needed here) -->
     <details id="game-state-details">
       <summary>Current Game State (JSON)</summary>
       <pre id="game-state-json-output">Game state not available yet.</pre>
     </details>
 
     <script>
-      // --- Configuration ---
-      // API Key is now managed via UI and localStorage
+      // --- Configuration (no changes needed here) ---
       const OPENAI_API_KEY_STORAGE_KEY = "llmTextAdventureApiKey";
       const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
-      const INITIAL_LLM_MODEL = "gpt-4.1"; // Model for initial game generation
+      const INITIAL_LLM_MODEL = "gpt-4.1-mini"; // Model for initial game generation
       const LLM_MODEL = "gpt-4.1-nano"; // Standard model for gameplay
       const LOCAL_STORAGE_KEY = "llmTextAdventureState";
 
-      // --- System Prompt ---
+      // --- System Prompt (no changes needed here) ---
       const SYSTEM_PROMPT = `You are a text adventure game engine specializing in quirky slice-of-life adventures.
 1.  **Initialize:** On the first turn (when gameState is empty or null), create a simple adventure set in a typical, randomly imagined Dutch town (e.g., 'Oudewater', 'Broek in Waterland', 'Zaltbommel' - feel free to invent one). Define:
     * 'gameGoal': A clear objective that is **mundane and everyday** for someone living in a Dutch town (e.g., "Buy a specific type of cheese for dinner," "Mail a slightly oversized package," "Get a replacement bicycle part," "Return an overdue library book").
@@ -220,12 +279,13 @@
     * Initialize 'characterKnowledge' as an empty object {} (this will store clues, gossip, promises learned from NPCs).
     * Initialize 'npcStates' as an empty object {} (this can track moods, knowledge, or relationship status with key NPCs like {'Mevrouw Jansen': 'Suspicious', 'Bakker Piet': 'Worried'}).
     * Initialize 'currentLocation': A starting location within the town (e.g., "Your cozy apartment overlooking the Herengracht," "Standing outside the local 'Kaaswinkel' (cheese shop)," "By the town's main canal bridge").
-2.  **Gameplay Loop:** On subsequent turns, you receive the current gameState and the player's chosen 'playerAction'.
+2.  **Gameplay Loop:** On subsequent turns, you receive the current gameState and the player's chosen 'playerAction'. This action might be one of the 'currentChoices' you previously provided, **or it might be free-form text typed by the player.**
+    * **Interpret the 'playerAction':** Understand the player's intent, whether it's from a predefined choice or custom input. If it's custom input, react plausibly within the game world and context. You might need to gently guide the player back if the action is impossible or nonsensical ("You try to fly, but gravity firmly disagrees.") or interpret it creatively ("You decide to compliment Mevrouw Jansen on her prize-winning tulips instead of asking about the sign. She beams, offering you a cryptic gardening tip...").
     * Update the gameState based on the 'playerAction'. This will heavily involve modifying 'characterKnowledge' based on conversations, changing 'npcStates' based on interactions (persuasion, favors, arguments), updating 'inventory' if items are exchanged, and potentially changing 'currentLocation'.
     * Determine if the action completed any 'definedSteps'. If so, add them to the 'completedSteps' array. Ensure steps reflect overcoming the unusual obstacles via NPC interaction.
     * Recalculate 'progressPercentage' based on the number of completed steps vs. total defined steps (round to nearest integer).
-    * Generate 'currentNarrative': Describe the outcome of the player's action, focusing on the **NPC reactions, dialogue snippets, discovered information, and the unfolding unusual circumstances** complicating the simple goal. Make the descriptions vivid and engaging, highlighting the quirky nature of the adventure.
-    * Generate 'currentChoices': Provide 2-4 relevant actions based on the *new* state. These choices should **prioritize interaction with NPCs** ("Ask [NPC] about [Topic]", "Try to persuade [NPC]...", "Show [Item] to [NPC]", "Follow [NPC]'s strange advice...") but can also include investigation or movement.
+    * Generate 'currentNarrative': Describe the outcome of the player's action, focusing on the **NPC reactions, dialogue snippets, discovered information, and the unfolding unusual circumstances** complicating the simple goal. Make the descriptions vivid and engaging, highlighting the quirky nature of the adventure. Acknowledge the specific action taken, especially if it was custom input.
+    * Generate 'currentChoices': Provide 2-4 relevant actions based on the *new* state. These choices should **prioritize interaction with NPCs** ("Ask [NPC] about [Topic]", "Try to persuade [NPC]...", "Show [Item] to [NPC]", "Follow [NPC]'s strange advice...") but can also include investigation or movement. Even after custom input, provide sensible next steps.
     * If the 'gameGoal' is achieved (e.g., the mundane task is finally completed after the unexpected adventure), set 'progressPercentage' to 100, provide a concluding 'currentNarrative' reflecting on the bizarre journey to achieve a simple task, and make 'currentChoices' an empty array [].
 3.  **Response Format:** ALWAYS respond with a single JSON object containing the *complete*, updated gameState. The JSON should have keys like: "gameGoal", "definedSteps", "completedSteps", "progressPercentage", "inventory", "characterKnowledge", "npcStates", "currentNarrative", "currentChoices", "currentLocation". Ensure the JSON is valid.
 
@@ -260,81 +320,53 @@ Example JSON Response Structure:
 
       const gameStateJsonOutput = document.getElementById(
         "game-state-json-output"
-      ); // Added for JSON display
+      );
 
       // --- Game State & API Key ---
       let gameState = null;
-      let currentApiKey = null; // Holds the loaded API key
+      let currentApiKey = null;
 
       // --- Functions ---
 
-      /**
-       * Loads API Key from localStorage.
-       * @returns {string | null} The loaded key or null.
-       */
+      // loadApiKey, saveApiKey, clearApiKey, showApiKeySetupUI, showGameUI, updateApiKeyIndicator, loadGameState, saveGameState, updateGameStateJsonDisplay (no changes needed in these)
       function loadApiKey() {
         const savedKey = localStorage.getItem(OPENAI_API_KEY_STORAGE_KEY);
-        currentApiKey = savedKey; // Update global variable
+        currentApiKey = savedKey;
         return savedKey;
       }
-
-      /**
-       * Saves API Key to localStorage.
-       * @param {string} key - The API key to save.
-       */
       function saveApiKey(key) {
         localStorage.setItem(OPENAI_API_KEY_STORAGE_KEY, key);
-        currentApiKey = key; // Update global variable
+        currentApiKey = key;
         console.log("API Key saved to localStorage.");
-        updateApiKeyIndicator(); // Update the indicator text
+        updateApiKeyIndicator();
       }
-
-      /**
-       * Clears API Key from localStorage and resets relevant state.
-       */
       function clearApiKey() {
         localStorage.removeItem(OPENAI_API_KEY_STORAGE_KEY);
         currentApiKey = null;
         console.log("API Key cleared from localStorage.");
-        // Also clear game state when key is cleared
         localStorage.removeItem(LOCAL_STORAGE_KEY);
         gameState = null;
-        // Reset UI
         showApiKeySetupUI();
-        apiKeyInput.value = ""; // Clear input field
+        apiKeyInput.value = "";
         apiKeyStatus.textContent = "API Key cleared. Please enter a new key.";
-        apiKeyStatus.className = ""; // Reset status style
-        errorOutput.textContent = ""; // Clear game errors
-        updateGameStateJsonDisplay(); // Clear JSON display
+        apiKeyStatus.className = "";
+        errorOutput.textContent = "";
+        updateGameStateJsonDisplay();
       }
-
-      /**
-       * Shows the API key setup screen and hides the game.
-       */
       function showApiKeySetupUI() {
         gameContainer.style.display = "none";
         apiKeySetupDiv.style.display = "block";
-        apiKeyStatus.textContent = ""; // Clear status on show
-        document.getElementById("game-state-details").style.display = "none"; // Hide details when setting up key
+        apiKeyStatus.textContent = "";
+        document.getElementById("game-state-details").style.display = "none";
       }
-
-      /**
-       * Shows the game screen and hides the API key setup.
-       */
       function showGameUI() {
         apiKeySetupDiv.style.display = "none";
         gameContainer.style.display = "block";
-        document.getElementById("game-state-details").style.display = "block"; // Show details with game
-        updateApiKeyIndicator(); // Ensure indicator is correct
+        document.getElementById("game-state-details").style.display = "block";
+        updateApiKeyIndicator();
       }
-
-      /**
-       * Updates the text in the API key display area.
-       */
       function updateApiKeyIndicator() {
         if (currentApiKey) {
-          // Show a generic message or part of the key (be careful!)
-          // Example: Show first few and last few chars
           const keyStart = currentApiKey.substring(0, 5);
           const keyEnd = currentApiKey.substring(currentApiKey.length - 4);
           apiKeyIndicator.textContent = `Using API Key: ${keyStart}...${keyEnd}`;
@@ -342,11 +374,6 @@ Example JSON Response Structure:
           apiKeyIndicator.textContent = "API Key not set.";
         }
       }
-
-      /**
-       * Loads game state from localStorage.
-       * @returns {object | null} The loaded game state or null if not found/invalid.
-       */
       function loadGameState() {
         const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (savedState) {
@@ -354,16 +381,12 @@ Example JSON Response Structure:
             return JSON.parse(savedState);
           } catch (e) {
             console.error("Failed to parse saved game state:", e);
-            localStorage.removeItem(LOCAL_STORAGE_KEY); // Remove corrupted state
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
             return null;
           }
         }
         return null;
       }
-
-      /**
-       * Saves the current game state to localStorage.
-       */
       function saveGameState() {
         if (gameState) {
           try {
@@ -375,10 +398,6 @@ Example JSON Response Structure:
           }
         }
       }
-
-      /**
-       * Updates the JSON display section.
-       */
       function updateGameStateJsonDisplay() {
         if (gameState) {
           try {
@@ -386,7 +405,7 @@ Example JSON Response Structure:
               gameState,
               null,
               2
-            ); // Pretty print JSON
+            );
           } catch (e) {
             console.error("Error stringifying game state for display:", e);
             gameStateJsonOutput.textContent = "Error displaying game state.";
@@ -401,15 +420,14 @@ Example JSON Response Structure:
        * Updates the UI elements based on the current gameState.
        */
       function updateUI() {
+        choicesOutput.innerHTML = ""; // Clear previous choices and inputs
+
         if (!gameState) {
-          // Don't show error here if we are just starting/key cleared
           if (currentApiKey) {
-            // Only show error if key exists but state is bad
             storyOutput.textContent = "Error: Game state is missing.";
             progressDisplay.textContent = "Progress: ?";
           }
-          choicesOutput.innerHTML = "";
-          updateGameStateJsonDisplay(); // Update JSON display even if state is null
+          updateGameStateJsonDisplay();
           return;
         }
 
@@ -418,48 +436,83 @@ Example JSON Response Structure:
         progressDisplay.textContent = `Progress: ${
           gameState.progressPercentage || 0
         }%`;
+        errorOutput.textContent = ""; // Clear general error on successful UI update
 
-        choicesOutput.innerHTML = ""; // Clear previous choices
+        // Render choice buttons
         if (gameState.currentChoices && gameState.currentChoices.length > 0) {
           gameState.currentChoices.forEach((choice, index) => {
             const button = document.createElement("button");
             button.textContent = choice;
+            button.classList.add("choice-button"); // Add class for specific styling
             button.dataset.choiceIndex = index;
             button.addEventListener("click", handleChoiceClick);
             choicesOutput.appendChild(button);
           });
-        } else {
+        } else if (gameState.progressPercentage === 100) {
+          // Game is won
           const endMessage = document.createElement("p");
-          if (gameState.progressPercentage === 100) {
-            endMessage.textContent =
-              "Congratulations! You have completed the adventure.";
-            endMessage.style.fontWeight = "bold";
-          } else if (gameState.currentNarrative) {
-            endMessage.textContent = "The story ends here.";
-          } else {
-            endMessage.textContent = "Game Over or End State Reached.";
-          }
+          endMessage.textContent =
+            "Congratulations! You have completed the adventure.";
+          endMessage.style.fontWeight = "bold";
+          endMessage.style.textAlign = "center";
+          choicesOutput.appendChild(endMessage);
+        } else if (gameState.currentNarrative) {
+          // Game ended some other way, or just no choices offered
+          const endMessage = document.createElement("p");
+          endMessage.textContent =
+            "The story continues... or does it? What will you do?"; // Changed message slightly
           choicesOutput.appendChild(endMessage);
         }
+
+        // Render custom action input area (unless game is completed)
+        if (gameState.progressPercentage !== 100) {
+          const customActionArea = document.createElement("div");
+          customActionArea.id = "custom-action-area";
+
+          const input = document.createElement("input");
+          input.type = "text";
+          input.id = "custom-action-input";
+          input.placeholder = "Or type your own action...";
+          input.addEventListener("keypress", function (e) {
+            // Allow submission with Enter key
+            if (e.key === "Enter") {
+              handleSubmitCustomAction();
+            }
+          });
+          customActionArea.appendChild(input);
+
+          const submitButton = document.createElement("button");
+          submitButton.id = "submit-custom-action-button";
+          submitButton.textContent = "Do it";
+          submitButton.addEventListener("click", handleSubmitCustomAction);
+          customActionArea.appendChild(submitButton);
+
+          choicesOutput.appendChild(customActionArea);
+        }
+
+        // Render Restart Button (Always show unless initial state is null)
         const restartButton = document.createElement("button");
         restartButton.textContent = "Restart Game";
-        restartButton.style.marginTop = "20px";
-        restartButton.style.backgroundColor = "#5bc0de"; // Info color
-        restartButton.style.color = "white";
+        restartButton.id = "restart-button"; // Give it an ID for styling
         restartButton.onclick = () => {
-          localStorage.removeItem(LOCAL_STORAGE_KEY);
-          gameState = null;
-          updateGameStateJsonDisplay(); // Clear JSON display on restart before init
-          initializeGame(); // Re-initialize with the current API key
+          if (
+            confirm(
+              "Are you sure you want to restart? Your current progress will be lost."
+            )
+          ) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+            gameState = null;
+            updateGameStateJsonDisplay();
+            initializeGame();
+          }
         };
         choicesOutput.appendChild(restartButton);
-        errorOutput.textContent = ""; // Hide general error on successful UI update
 
         updateGameStateJsonDisplay(); // Update the JSON display section
       }
 
       /**
-       * Handles button clicks for choices.
+       * Handles button clicks for PREDEFINED choices.
        */
       function handleChoiceClick(event) {
         const choiceIndex = parseInt(event.target.dataset.choiceIndex, 10);
@@ -477,51 +530,80 @@ Example JSON Response Structure:
       }
 
       /**
+       * Handles submission of the custom text input.
+       */
+      function handleSubmitCustomAction() {
+        const inputElement = document.getElementById("custom-action-input");
+        if (!inputElement) return; // Safety check
+
+        const customAction = inputElement.value.trim();
+
+        if (customAction) {
+          processPlayerAction(customAction);
+          inputElement.value = ""; // Clear input after submission
+        } else {
+          // Optionally provide feedback if input is empty
+          // e.g., inputElement.placeholder = "Please type an action first!";
+          console.log("Custom action input was empty.");
+        }
+      }
+
+      /**
        * Calls the OpenAI API.
        * @param {Array<object>} messages - The array of messages for the chat completion.
        * @param {string} modelToUse - The specific model identifier to use for this call.
        * @returns {Promise<object | null>} The parsed JSON response from the LLM or null on error.
        */
       async function callOpenAI(messages, modelToUse) {
-        // Added modelToUse parameter
         loadingIndicator.style.display = "block";
         errorOutput.textContent = ""; // Clear previous errors
-        choicesOutput.innerHTML = ""; // Clear choices while loading
+        // Don't clear choicesOutput here, only disable/show loading visually
+        const buttons = choicesOutput.querySelectorAll("button");
+        buttons.forEach((button) => (button.disabled = true));
+        const input = choicesOutput.querySelector("input");
+        if (input) input.disabled = true;
 
         if (!currentApiKey) {
           errorOutput.textContent =
             "Error: OpenAI API Key is not set. Please provide your key.";
           loadingIndicator.style.display = "none";
-          // Optionally force back to API key screen
-          clearApiKey(); // Go back to setup
+          clearApiKey();
           return null;
         }
 
-        console.log(`Calling OpenAI API with model: ${modelToUse}`); // Log which model is being used
+        console.log(`Calling OpenAI API with model: ${modelToUse}`);
 
         try {
           const response = await fetch(OPENAI_API_URL, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${currentApiKey}`, // Use the loaded key
+              Authorization: `Bearer ${currentApiKey}`,
             },
             body: JSON.stringify({
-              model: modelToUse, // Use the passed model identifier
+              model: modelToUse,
               messages: messages,
               response_format: { type: "json_object" },
+              temperature: 1.2,
             }),
           });
 
           if (!response.ok) {
-            const errorData = await response.json().catch(() => ({})); // Try to get error details
+            const errorData = await response.json().catch(() => ({}));
             console.error("API Error Response:", errorData);
-            // Check for specific auth error (401)
             if (response.status === 401) {
               throw new Error(
                 `API Authentication Error: ${response.status} ${
                   response.statusText
                 }. Please check if your API Key is correct and active. ${
+                  errorData.error?.message || ""
+                }`
+              );
+            } else if (response.status === 429) {
+              throw new Error(
+                `API Rate Limit Error: ${response.status} ${
+                  response.statusText
+                }. You may have exceeded your usage quota. Please check your OpenAI account. ${
                   errorData.error?.message || ""
                 }`
               );
@@ -546,7 +628,6 @@ Example JSON Response Structure:
           }
 
           const content = data.choices[0].message.content;
-          // Add extra check for non-JSON content which can happen despite response_format
           try {
             return JSON.parse(content);
           } catch (parseError) {
@@ -555,36 +636,56 @@ Example JSON Response Structure:
               "API returned non-JSON content. Response: " +
                 content.substring(0, 100) +
                 "..."
-            ); // Show snippet
+            );
           }
         } catch (error) {
           console.error(
             "Error calling OpenAI API or processing response:",
             error
           );
-          errorOutput.textContent = `Error: ${error.message}. Check console for details. If this is an authentication error, try clearing and re-entering your API key.`;
-          errorOutput.className = "error api-error"; // Use specific style for API errors
+          errorOutput.textContent = `Error: ${error.message}. Check console. Try re-entering API key or restarting.`;
+          errorOutput.className = "error api-error";
 
           // Clear choices and show minimal buttons on error
           choicesOutput.innerHTML = "";
 
-          // Add a button to clear the key if an API error occurs
           const clearKeyOnErrorButton = document.createElement("button");
           clearKeyOnErrorButton.textContent = "Clear API Key & Restart Setup";
           clearKeyOnErrorButton.onclick = clearApiKey;
-          clearKeyOnErrorButton.style.backgroundColor = "#d9534f";
-          clearKeyOnErrorButton.style.color = "white";
+          clearKeyOnErrorButton.classList.add("error-button", "clear-key"); // Add classes for styling
           choicesOutput.appendChild(clearKeyOnErrorButton);
+
+          // Add a restart button for general errors too
+          const restartOnErrorButton = document.createElement("button");
+          restartOnErrorButton.textContent = "Restart Game";
+          restartOnErrorButton.id = "restart-button"; // Reuse ID for styling
+          restartOnErrorButton.classList.add("error-button"); // General error button style
+          restartOnErrorButton.onclick = () => {
+            if (
+              confirm(
+                "Are you sure you want to restart? Your current progress will be lost."
+              )
+            ) {
+              localStorage.removeItem(LOCAL_STORAGE_KEY);
+              gameState = null;
+              updateGameStateJsonDisplay();
+              initializeGame(); // Try to re-initialize
+            }
+          };
+          choicesOutput.appendChild(restartOnErrorButton);
 
           return null; // Indicate failure
         } finally {
           loadingIndicator.style.display = "none";
+          // Re-enable buttons/input in case of non-fatal error or success (updateUI will handle final state)
+          buttons.forEach((button) => (button.disabled = false));
+          if (input) input.disabled = false;
         }
       }
 
       /**
-       * Processes the player's chosen action by sending it to the LLM.
-       * @param {string} playerAction - The text of the action chosen by the player.
+       * Processes the player's action (from button or text input) by sending it to the LLM.
+       * @param {string} playerAction - The text of the action chosen/typed by the player.
        */
       async function processPlayerAction(playerAction) {
         if (!gameState) {
@@ -595,9 +696,11 @@ Example JSON Response Structure:
         }
         if (!currentApiKey) {
           errorOutput.textContent = "Error: API Key missing. Cannot proceed.";
-          clearApiKey(); // Force back to setup
+          clearApiKey();
           return;
         }
+
+        console.log("Processing player action:", playerAction); // Log the action being sent
 
         const messages = [
           { role: "system", content: SYSTEM_PROMPT },
@@ -609,32 +712,46 @@ Example JSON Response Structure:
           },
         ];
 
-        // Use the standard LLM_MODEL for subsequent turns
         const newGameStateData = await callOpenAI(messages, LLM_MODEL);
 
         if (newGameStateData) {
-          gameState = newGameStateData;
+          // Add basic validation for the received state
+          if (
+            typeof newGameStateData.currentNarrative !== "string" ||
+            !Array.isArray(newGameStateData.currentChoices)
+          ) {
+            console.error(
+              "Invalid game state received from LLM:",
+              newGameStateData
+            );
+            errorOutput.textContent =
+              "Error: Received invalid game state structure from the AI. Trying to continue, but the game might be broken.";
+            errorOutput.className = "error api-error";
+            // Attempt to merge or recover if possible, or just use old state?
+            // For simplicity, we'll update but warn the user.
+            gameState = newGameStateData; // Accept potentially broken state
+          } else {
+            gameState = newGameStateData; // Update normally
+          }
           saveGameState();
           updateUI();
         } else {
-          // Error handled by callOpenAI, keep old UI state but ensure buttons reflect error state
-          updateUI(); // Redraw UI, error message should persist from callOpenAI
-          // Make sure error buttons (like clear key) added by callOpenAI are visible
-          // If choicesOutput was cleared by callOpenAI error handling, re-add error buttons.
+          // Error handled by callOpenAI. UI should show error message and buttons.
+          // updateUI might be called implicitly if needed by error handling,
+          // but we ensure buttons/input are re-enabled by callOpenAI's finally block.
+          console.log("callOpenAI returned null, error should be displayed.");
+          // If error buttons weren't added by callOpenAI (e.g., non-API error) ensure they are
           if (errorOutput.textContent && choicesOutput.children.length === 0) {
-            // Check if choicesOutput is empty after error
             const clearKeyOnErrorButton = document.createElement("button");
             clearKeyOnErrorButton.textContent = "Clear API Key & Restart Setup";
             clearKeyOnErrorButton.onclick = clearApiKey;
-            clearKeyOnErrorButton.style.backgroundColor = "#d9534f";
-            clearKeyOnErrorButton.style.color = "white";
+            clearKeyOnErrorButton.classList.add("error-button", "clear-key");
             choicesOutput.appendChild(clearKeyOnErrorButton);
 
-            const retryButton = document.createElement("button"); // Optional: Add retry button
+            const retryButton = document.createElement("button");
             retryButton.textContent = "Retry Last Action";
-            retryButton.onclick = () => processPlayerAction(playerAction); // Resubmit the same action
-            retryButton.style.backgroundColor = "#f0ad4e"; // Warning color
-            retryButton.style.color = "white";
+            retryButton.onclick = () => processPlayerAction(playerAction);
+            retryButton.classList.add("error-button", "retry");
             choicesOutput.appendChild(retryButton);
           }
         }
@@ -644,28 +761,31 @@ Example JSON Response Structure:
        * Initializes the game if an API key is present. Loads state or starts new game.
        */
       async function initializeGame() {
-        // This function now assumes an API key IS present.
         if (!currentApiKey) {
           console.error("InitializeGame called without an API key.");
-          showApiKeySetupUI(); // Ensure setup is shown
+          showApiKeySetupUI();
           return;
         }
 
         console.log("Initializing game...");
-        errorOutput.textContent = ""; // Clear errors on init
-        errorOutput.className = "error"; // Reset error style
+        errorOutput.textContent = "";
+        errorOutput.className = "error";
+        choicesOutput.innerHTML = ""; // Clear buttons/input area before loading/init
+        storyOutput.textContent = "Loading game..."; // Initial message
+        progressDisplay.textContent = "Progress: ?";
+        loadingIndicator.style.display = "block"; // Show loading indicator
+
         gameState = loadGameState();
 
         if (gameState) {
           console.log("Loaded saved game state.");
+          loadingIndicator.style.display = "none"; // Hide loading
           updateUI();
         } else {
           console.log("No saved state found, starting a new game.");
           storyOutput.textContent = "Creating your adventure...";
           progressDisplay.textContent = "Progress: 0%";
-          choicesOutput.innerHTML = "";
-          loadingIndicator.style.display = "block"; // Show loading while initializing
-          updateGameStateJsonDisplay(); // Show "null" state in JSON view
+          updateGameStateJsonDisplay(); // Show "null" state initially
 
           const messages = [
             { role: "system", content: SYSTEM_PROMPT },
@@ -676,7 +796,6 @@ Example JSON Response Structure:
             },
           ];
 
-          // Use the INITIAL_LLM_MODEL for the first call
           const initialGameStateData = await callOpenAI(
             messages,
             INITIAL_LLM_MODEL
@@ -685,47 +804,48 @@ Example JSON Response Structure:
           loadingIndicator.style.display = "none"; // Hide loading after API call
 
           if (initialGameStateData) {
-            gameState = initialGameStateData;
+            // Basic validation of the initial state
             if (
-              !gameState.gameGoal ||
-              !gameState.definedSteps ||
-              !gameState.currentNarrative ||
-              !gameState.currentChoices
+              !initialGameStateData.gameGoal ||
+              !initialGameStateData.definedSteps ||
+              !initialGameStateData.currentNarrative ||
+              !initialGameStateData.currentChoices ||
+              typeof initialGameStateData.progressPercentage !== "number"
             ) {
               console.error(
-                "Initial state from LLM is missing required fields:",
-                gameState
+                "Initial state from LLM is missing required fields or has wrong types:",
+                initialGameStateData
               );
               errorOutput.textContent =
                 "Error: The AI failed to set up the game correctly. The response might be invalid. Please try restarting.";
-              errorOutput.className = "error api-error"; // Use API error style
-              gameState = null; // Reset gameState on critical init failure
-              updateGameStateJsonDisplay(); // Update JSON display to reflect null state
-              // Clear choices and show restart options
-              choicesOutput.innerHTML = "";
-              const restartButton = document.createElement("button");
-              restartButton.textContent = "Restart Game Attempt";
-              restartButton.onclick = () => {
-                initializeGame();
-              };
-              choicesOutput.appendChild(restartButton);
+              errorOutput.className = "error api-error";
+              gameState = null;
+              updateGameStateJsonDisplay();
+
+              choicesOutput.innerHTML = ""; // Clear again
+
+              const retryInitButton = document.createElement("button");
+              retryInitButton.textContent = "Retry Initialization";
+              retryInitButton.onclick = initializeGame;
+              retryInitButton.classList.add("error-button", "retry");
+              choicesOutput.appendChild(retryInitButton);
+
               const clearKeyButton = document.createElement("button");
               clearKeyButton.textContent = "Clear API Key & Restart Setup";
               clearKeyButton.onclick = clearApiKey;
-              clearKeyButton.style.backgroundColor = "#d9534f";
-              clearKeyButton.style.color = "white";
+              clearKeyButton.classList.add("error-button", "clear-key");
               choicesOutput.appendChild(clearKeyButton);
               return; // Stop further processing
             }
+            gameState = initialGameStateData;
             saveGameState();
             updateUI();
           } else {
             // Error occurred during initialization, message handled by callOpenAI
             storyOutput.textContent = "Failed to initialize game.";
             progressDisplay.textContent = "Progress: ?";
-            updateGameStateJsonDisplay(); // Update JSON display even on error
-            // Ensure error buttons provided by callOpenAI are displayed
-            // Check if choicesOutput is empty and error is present
+            updateGameStateJsonDisplay();
+            // Error buttons should have been added by callOpenAI's error handling
             if (
               errorOutput.textContent &&
               choicesOutput.children.length === 0
@@ -734,15 +854,13 @@ Example JSON Response Structure:
               clearKeyOnErrorButton.textContent =
                 "Clear API Key & Restart Setup";
               clearKeyOnErrorButton.onclick = clearApiKey;
-              clearKeyOnErrorButton.style.backgroundColor = "#d9534f";
-              clearKeyOnErrorButton.style.color = "white";
+              clearKeyOnErrorButton.classList.add("error-button", "clear-key");
               choicesOutput.appendChild(clearKeyOnErrorButton);
 
               const retryInitButton = document.createElement("button");
               retryInitButton.textContent = "Retry Initialization";
-              retryInitButton.onclick = initializeGame; // Retry the init process
-              retryInitButton.style.backgroundColor = "#f0ad4e"; // Warning color
-              retryInitButton.style.color = "white";
+              retryInitButton.onclick = initializeGame;
+              retryInitButton.classList.add("error-button", "retry");
               choicesOutput.appendChild(retryInitButton);
             }
           }
@@ -753,33 +871,40 @@ Example JSON Response Structure:
 
       saveApiKeyButton.addEventListener("click", () => {
         const key = apiKeyInput.value.trim();
-        if (key && key.startsWith("sk-")) {
-          // Basic validation
+        // Allow slightly more general keys, but check it's not empty
+        if (key) {
           saveApiKey(key);
           apiKeyStatus.textContent = "API Key saved!";
-          apiKeyStatus.className = ""; // Clear error class
-          apiKeyInput.value = ""; // Clear field after save
+          apiKeyStatus.className = "";
+          apiKeyInput.value = "";
           showGameUI();
-          initializeGame(); // Start the game now that we have a key
+          initializeGame();
         } else {
-          apiKeyStatus.textContent =
-            'Invalid API Key format. It should start with "sk-".';
+          apiKeyStatus.textContent = "Please enter a valid API Key.";
           apiKeyStatus.className = "error";
         }
       });
 
-      clearApiKeyButton.addEventListener("click", clearApiKey);
+      clearApiKeyButton.addEventListener("click", () => {
+        if (
+          confirm(
+            "Are you sure you want to clear the API key and restart setup? This will also delete any saved game progress."
+          )
+        ) {
+          clearApiKey();
+        }
+      });
 
       // --- Initial Load ---
       document.addEventListener("DOMContentLoaded", () => {
         if (loadApiKey()) {
           console.log("API Key found in localStorage.");
           showGameUI();
-          initializeGame(); // Key exists, start the game
+          initializeGame();
         } else {
           console.log("No API Key found. Showing setup.");
-          showApiKeySetupUI(); // No key, show setup first
-          updateGameStateJsonDisplay(); // Show initial empty state in JSON view
+          showApiKeySetupUI();
+          updateGameStateJsonDisplay();
         }
       });
     </script>
